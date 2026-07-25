@@ -19,6 +19,16 @@ python3 main.py -f usernames.txt
 python3 main.py  # интерактивный режим
 ```
 
+### Формат файла (`-f`)
+
+Текстовый файл, один юзернейм на строку. С `@` или без:
+
+```
+glebxdlol
+xieworld_vf
+@dsvsfb42
+```
+
 ## Пример
 
 ```bash
