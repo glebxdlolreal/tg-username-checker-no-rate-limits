@@ -16,6 +16,7 @@ Check Telegram usernames via fragment.com API.
 ```bash
 python3 main.py <username1> [username2 ...]
 python3 main.py -f usernames.txt
+python3 main.py  # interactive mode
 ```
 
 ### File format (`-f`)
