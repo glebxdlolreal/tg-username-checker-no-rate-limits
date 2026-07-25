@@ -196,7 +196,8 @@ def analyze(results):
 
 def print_result(username, info):
     s = "Taken" if info["exists"] else "Available"
-    ca = "CH" if info["is_channel"] else "US"
+    ca = "YES" if info["is_channel"] else "NO"
+    us = "NO" if info["is_channel"] else "YES"
     pr = "YES" if info["premium"] else "NO"
     st = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
     pg = "YES" if info["premium_ok"] else ("BLOCK" if info["exists"] else "NO")
@@ -213,6 +214,7 @@ def print_result(username, info):
     print(f"| DC         | {info['dc']:<46} |")
     print(f"| Avatar     | {av:<46} |")
     print(f"| Channel    | {ca:<46} |")
+    print(f"| User       | {us:<46} |")
     print(f"| Premium    | {pr:<46} |")
     print(f"| Stars      | {st:<46} |")
     print(f"| Prem.Gift  | {pg:<46} |")
@@ -236,6 +238,8 @@ def print_table(results_list):
         + "+"
         + "-" * 8
         + "+"
+        + "-" * 5
+        + "+"
         + "-" * 8
         + "+"
         + "-" * 6
@@ -245,13 +249,14 @@ def print_table(results_list):
         + "-" * 6
         + "+"
     )
-    h = f"|{'Username':>20}|{'Status':>7}|{'Name':>20}|{'DC':>4}|{'Avatar':>7}|{'Channel':>8}|{'Premium':>8}|{'Stars':>6}|{'Prem':>6}|{'Gram':>6}|"
+    h = f"|{'Username':>20}|{'Status':>7}|{'Name':>20}|{'DC':>4}|{'Avatar':>7}|{'Channel':>8}|{'User':>5}|{'Premium':>8}|{'Stars':>6}|{'Prem':>6}|{'Gram':>6}|"
     print(sep)
     print(h)
     print(sep)
     for username, info in results_list:
         st = "Taken" if info["exists"] else "Available"
-        ch = "CH" if info["is_channel"] else "US"
+        ch = "YES" if info["is_channel"] else "NO"
+        us = "NO" if info["is_channel"] else "YES"
         pr = "YES" if info["premium"] else "NO"
         av = "YES" if info["avatar"] else "NO"
         sg = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
@@ -259,7 +264,7 @@ def print_table(results_list):
         ad = "YES" if info["ads_ok"] else ("BLOCK" if info["exists"] else "NO")
         nm = info["name"] if len(info["name"]) <= 18 else info["name"][:15] + "..."
         print(
-            f"|{username:>20}|{st:>7}|{nm:>20}|{info['dc']:>4}|{av:>7}|{ch:>8}|{pr:>8}|{sg:>6}|{pg:>6}|{ad:>6}|"
+            f"|{username:>20}|{st:>7}|{nm:>20}|{info['dc']:>4}|{av:>7}|{ch:>8}|{us:>5}|{pr:>8}|{sg:>6}|{pg:>6}|{ad:>6}|"
         )
     print(sep)
 
