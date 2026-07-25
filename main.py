@@ -196,8 +196,8 @@ def analyze(results):
 
 def print_result(username, info):
     s = "Taken" if info["exists"] else "Available"
-    ca = "YES" if info["is_channel"] else "NO"
-    us = "NO" if info["is_channel"] else "YES"
+    ca = "YES" if info["exists"] and info["is_channel"] else "NO"
+    us = "YES" if info["exists"] and not info["is_channel"] else "NO"
     pr = "YES" if info["premium"] else "NO"
     st = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
     pg = "YES" if info["premium_ok"] else ("BLOCK" if info["exists"] else "NO")
@@ -255,8 +255,8 @@ def print_table(results_list):
     print(sep)
     for username, info in results_list:
         st = "Taken" if info["exists"] else "Available"
-        ch = "YES" if info["is_channel"] else "NO"
-        us = "NO" if info["is_channel"] else "YES"
+        ch = "YES" if info["exists"] and info["is_channel"] else "NO"
+        us = "YES" if info["exists"] and not info["is_channel"] else "NO"
         pr = "YES" if info["premium"] else "NO"
         av = "YES" if info["avatar"] else "NO"
         sg = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
