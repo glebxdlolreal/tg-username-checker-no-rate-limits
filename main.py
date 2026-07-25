@@ -219,6 +219,7 @@ def analyze(results):
         elif mid == "ads_topup" and found:
             ads_ok = True
 
+    is_bot = exists and user_signals > 0 and channel_signals > 0
     if is_channel is None:
         is_channel = channel_signals > user_signals
 
@@ -228,6 +229,7 @@ def analyze(results):
         "dc": dc,
         "avatar": avatar,
         "is_channel": is_channel,
+        "is_bot": is_bot,
         "premium": premium,
         "stars_ok": stars_ok,
         "premium_ok": premium_ok,
@@ -239,8 +241,10 @@ def analyze(results):
 
 def print_result(username, info):
     s = "Taken" if info["exists"] else "Available"
-    ca = "YES" if info["exists"] and info["is_channel"] else "NO"
-    us = "YES" if info["exists"] and not info["is_channel"] else "NO"
+    is_bot = info.get("is_bot", False)
+    ca = "YES" if info["exists"] and info["is_channel"] and not is_bot else "NO"
+    us = "YES" if info["exists"] and not info["is_channel"] and not is_bot else "NO"
+    bt = "YES" if is_bot else "NO"
     pr = "YES" if info["premium"] else "NO"
     st = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
     pg = "YES" if info["premium_ok"] else ("BLOCK" if info["exists"] else "NO")
@@ -258,6 +262,8 @@ def print_result(username, info):
     print(f"| Avatar     | {av:<46} |")
     print(f"| Channel    | {ca:<46} |")
     print(f"| User       | {us:<46} |")
+    if is_bot:
+        print(f"| Bot        | YES{'':<42} |")
     print(f"| Premium    | {pr:<46} |")
     print(f"| Stars      | {st:<46} |")
     print(f"| Prem.Gift  | {pg:<46} |")
@@ -272,6 +278,7 @@ def print_result(username, info):
 
 def print_table(results_list):
     print()
+    h = f"|{'Username':>20}|{'Status':>7}|{'Name':>20}|{'DC':>4}|{'Avatar':>7}|{'Channel':>8}|{'User':>5}|{'Bot':>4}|{'Premium':>8}|{'Stars':>6}|{'Prem':>6}|{'Gram':>6}|{'Market':>9}|"
     sep = (
         "+"
         + "-" * 20
@@ -288,31 +295,7 @@ def print_table(results_list):
         + "+"
         + "-" * 5
         + "+"
-        + "-" * 8
-        + "+"
-        + "-" * 6
-        + "+"
-        + "-" * 6
-        + "+"
-        + "-" * 6
-        + "+"
-    )
-    h = f"|{'Username':>20}|{'Status':>7}|{'Name':>20}|{'DC':>4}|{'Avatar':>7}|{'Channel':>8}|{'User':>5}|{'Premium':>8}|{'Stars':>6}|{'Prem':>6}|{'Gram':>6}|{'Market':>9}|"
-    sep = (
-        "+"
-        + "-" * 20
-        + "+"
-        + "-" * 7
-        + "+"
-        + "-" * 20
-        + "+"
         + "-" * 4
-        + "+"
-        + "-" * 7
-        + "+"
-        + "-" * 8
-        + "+"
-        + "-" * 5
         + "+"
         + "-" * 8
         + "+"
@@ -330,8 +313,10 @@ def print_table(results_list):
     print(sep)
     for username, info in results_list:
         st = "Taken" if info["exists"] else "Available"
-        ch = "YES" if info["exists"] and info["is_channel"] else "NO"
-        us = "YES" if info["exists"] and not info["is_channel"] else "NO"
+        is_bot = info.get("is_bot", False)
+        ch = "YES" if info["exists"] and info["is_channel"] and not is_bot else "NO"
+        us = "YES" if info["exists"] and not info["is_channel"] and not is_bot else "NO"
+        bt = "YES" if is_bot else "NO"
         pr = "YES" if info["premium"] else "NO"
         av = "YES" if info["avatar"] else "NO"
         sg = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
@@ -344,7 +329,7 @@ def print_table(results_list):
         )
         nm = info["name"] if len(info["name"]) <= 18 else info["name"][:15] + "..."
         print(
-            f"|{username:>20}|{st:>7}|{nm:>20}|{info['dc']:>4}|{av:>7}|{ch:>8}|{us:>5}|{pr:>8}|{sg:>6}|{pg:>6}|{ad:>6}|{mk:>9}|"
+            f"|{username:>20}|{st:>7}|{nm:>20}|{info['dc']:>4}|{av:>7}|{ch:>8}|{us:>5}|{bt:>4}|{pr:>8}|{sg:>6}|{pg:>6}|{ad:>6}|{mk:>9}|"
         )
     print(sep)
 
