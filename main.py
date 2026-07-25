@@ -116,6 +116,47 @@ def check_username(session, api_url, username):
     return results
 
 
+def check_fragment_page(session, username):
+    try:
+        r = session.get(f"{BASE}/username/{username}", allow_redirects=True, timeout=15)
+        html = r.text
+        redirected = "?query=" in r.url
+        if redirected:
+            return "Unavail", ""
+
+        sec = re.search(r"tm-section-header-status[^>]*>([^<]+)", html)
+        status = sec.group(1).strip() if sec else ""
+
+        idx = html.find("tm-section-bid-info")
+        bid_section = html[idx : idx + 2000] if idx >= 0 else ""
+
+        price_label = ""
+        if status in ("Sold", "BANNED"):
+            m = re.search(r"icon-before icon-ton[^>]*>([0-9,]+)", bid_section)
+            pur = re.search(r"Purchased on[^>]*>([^<]+)", html)
+            if m:
+                price_label = "for " + m.group(1) + " TON"
+            if pur:
+                price_label += " on " + pur.group(1).strip()
+        elif status == "On auction":
+            m = re.search(r"icon-before icon-ton[^>]*>([0-9,]+)", bid_section)
+            if m:
+                price_label = "Bid: " + m.group(1) + " TON"
+
+        if status == "BANNED":
+            return "Banned, was Sold " + price_label, ""
+
+        if status == "Sold":
+            return "Sold " + price_label, ""
+
+        if status == "On auction":
+            return "On auction, " + price_label, ""
+
+        return "-", ""
+    except Exception:
+        return "-", ""
+
+
 def analyze(results):
     name = "-"
     dc = "?"
@@ -191,6 +232,8 @@ def analyze(results):
         "stars_ok": stars_ok,
         "premium_ok": premium_ok,
         "ads_ok": ads_ok,
+        "market": "-",
+        "market_price": "",
     }
 
 
@@ -219,6 +262,11 @@ def print_result(username, info):
     print(f"| Stars      | {st:<46} |")
     print(f"| Prem.Gift  | {pg:<46} |")
     print(f"| Gram       | {ad:<46} |")
+    if info["market"] != "-":
+        label = info["market"]
+        if info["market_price"]:
+            label += " " + info["market_price"]
+        print(f"| Market     | {label:<46} |")
     print(mid)
 
 
@@ -249,7 +297,34 @@ def print_table(results_list):
         + "-" * 6
         + "+"
     )
-    h = f"|{'Username':>20}|{'Status':>7}|{'Name':>20}|{'DC':>4}|{'Avatar':>7}|{'Channel':>8}|{'User':>5}|{'Premium':>8}|{'Stars':>6}|{'Prem':>6}|{'Gram':>6}|"
+    h = f"|{'Username':>20}|{'Status':>7}|{'Name':>20}|{'DC':>4}|{'Avatar':>7}|{'Channel':>8}|{'User':>5}|{'Premium':>8}|{'Stars':>6}|{'Prem':>6}|{'Gram':>6}|{'Market':>9}|"
+    sep = (
+        "+"
+        + "-" * 20
+        + "+"
+        + "-" * 7
+        + "+"
+        + "-" * 20
+        + "+"
+        + "-" * 4
+        + "+"
+        + "-" * 7
+        + "+"
+        + "-" * 8
+        + "+"
+        + "-" * 5
+        + "+"
+        + "-" * 8
+        + "+"
+        + "-" * 6
+        + "+"
+        + "-" * 6
+        + "+"
+        + "-" * 6
+        + "+"
+        + "-" * 9
+        + "+"
+    )
     print(sep)
     print(h)
     print(sep)
@@ -262,9 +337,14 @@ def print_table(results_list):
         sg = "YES" if info["stars_ok"] else ("BLOCK" if info["exists"] else "NO")
         pg = "YES" if info["premium_ok"] else ("BLOCK" if info["exists"] else "NO")
         ad = "YES" if info["ads_ok"] else ("BLOCK" if info["exists"] else "NO")
+        mk = (
+            (info["market"] + " " + info["market_price"]).strip()
+            if info["market"] != "-"
+            else ""
+        )
         nm = info["name"] if len(info["name"]) <= 18 else info["name"][:15] + "..."
         print(
-            f"|{username:>20}|{st:>7}|{nm:>20}|{info['dc']:>4}|{av:>7}|{ch:>8}|{us:>5}|{pr:>8}|{sg:>6}|{pg:>6}|{ad:>6}|"
+            f"|{username:>20}|{st:>7}|{nm:>20}|{info['dc']:>4}|{av:>7}|{ch:>8}|{us:>5}|{pr:>8}|{sg:>6}|{pg:>6}|{ad:>6}|{mk:>9}|"
         )
     print(sep)
 
@@ -309,6 +389,9 @@ def main():
             print(f"[{i + 1}/{len(usernames)}] Checking @{username}...")
             results = check_username(session, api_url, username)
             info = analyze(results)
+            info["market"], info["market_price"] = check_fragment_page(
+                session, username
+            )
             results_list.append((username, info))
             print_result(username, info)
             print()
@@ -329,6 +412,9 @@ def main():
                 username = raw.lstrip("@")
                 results = check_username(session, api_url, username)
                 info = analyze(results)
+                info["market"], info["market_price"] = check_fragment_page(
+                    session, username
+                )
                 print_result(username, info)
                 print()
         except (KeyboardInterrupt, EOFError):

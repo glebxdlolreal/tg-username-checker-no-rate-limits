@@ -10,6 +10,8 @@ Check Telegram usernames via fragment.com API.
 - Shows avatar status
 - Shows premium status
 - Checks if Stars, Premium Gift, and Gram are available
+- Shows marketplace status (Sold / On auction / Banned / Unavail)
+- Shows sale price and purchase date for sold usernames
 
 ## Usage
 
