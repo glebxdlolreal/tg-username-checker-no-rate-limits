@@ -122,7 +122,7 @@ def check_fragment_page(session, username):
         html = r.text
         redirected = "?query=" in r.url
         if redirected:
-            return "Unavail", ""
+            return "Unavailable", ""
 
         sec = re.search(r"tm-section-header-status[^>]*>([^<]+)", html)
         status = sec.group(1).strip() if sec else ""
