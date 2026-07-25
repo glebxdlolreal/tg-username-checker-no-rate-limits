@@ -5,7 +5,7 @@ Check Telegram usernames via fragment.com API.
 ## Features
 
 - Checks if a username is taken or available
-- Detects user vs channel
+- Detects user, channel, and bot
 - Shows DC (data center)
 - Shows avatar status
 - Shows premium status
